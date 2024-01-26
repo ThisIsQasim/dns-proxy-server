@@ -3,6 +3,7 @@ FROM debian:10-slim AS base
 
 FROM base AS artifact
 COPY ./build/artifacts/ /build/artifacts/
+# Architecture names use either aarch64/x86_64 or amd64/arm64 but we need aarch64/amd64
 RUN export ARCH=$(bash -c '[ $(uname -m) == "x86_64" ] && echo "amd64" || echo "aarch64"');\
 	mv /build/artifacts/linux-${ARCH} /app
 
