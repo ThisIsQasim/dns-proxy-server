@@ -123,6 +123,7 @@ jobs:
   aditional_release:
     name: ${{ matrix.os }} release
     needs: primary_release
+    if: false
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -218,13 +219,13 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: aarch64-artifacts
-          path: ./build/artifacts/linux-aarch64
-
-      - uses: actions/download-artifact@v3
-        with:
           name: amd64-artifacts
           path: ./build/artifacts/linux-amd64
+
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: aarch64-artifacts
+      #     path: ./build/artifacts/linux-aarch64
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -232,7 +233,6 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64
-          tags: latest
-            # ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 

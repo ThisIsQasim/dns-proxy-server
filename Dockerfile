@@ -1,5 +1,12 @@
-FROM debian:10-slim
-COPY ./build/artifacts/linux-amd64/dns-proxy-server /app/dns-proxy-server
+FROM debian:10-slim AS base
+
+FROM base AS artifact
+COPY ./build/artifacts/ /build/artifacts/
+RUN export ARCH=$(bash -c '[ $(uname -m) == "x86_64" ] && echo "amd64" || echo "aarch64"');\
+	mv /build/artifacts/linux-${ARCH} /app
+
+FROM base
+COPY --from=artifact /app/dns-proxy-server /app/dns-proxy-server
 WORKDIR /app
 LABEL dps.container=true
 ENV DPS_CONTAINER=1
