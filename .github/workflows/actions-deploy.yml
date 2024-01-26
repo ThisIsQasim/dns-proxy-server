@@ -71,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: amd64-artifacts
-          path: ./build/artifacts/linux-amd64
+          path: ./build/artifacts/linux-amd64/
 
   linux_arm_release:
     runs-on: ubuntu-latest
@@ -100,6 +100,7 @@ jobs:
           docker-compose -f docker-compose-deploy.yml run deploy bash -c '
             /bin/builder.bash deploy-arm &&\
             echo "> Copying files to the host" &&\
+            cp -rv /app/build/artifacts /host/build/ &&\
             cp -rv /app/build/compressed-artifacts /host/build/ &&\
             echo "Linux arm64 is done!"
           ' &&\
@@ -119,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: aarch64-artifacts
-          path: ./build/artifacts/linux-aarch64
+          path: ./build/artifacts/linux-aarch64/
 
   aditional_release:
     name: ${{ matrix.os }} release
