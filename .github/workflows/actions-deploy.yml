@@ -224,12 +224,14 @@ jobs:
           tags: |
             type=raw,value=${{ env.APP_VERSION }}
 
-      - uses: actions/download-artifact@v3
+      - name: Download amd64 artifacts
+        uses: actions/download-artifact@v3
         with:
           name: amd64-artifacts
           path: ./build/artifacts/linux-amd64
 
-      - uses: actions/download-artifact@v3
+      - name: Download aarch64 artifacts
+        uses: actions/download-artifact@v3
         with:
           name: aarch64-artifacts
           path: ./build/artifacts/linux-aarch64
