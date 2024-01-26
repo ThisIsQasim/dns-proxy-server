@@ -66,10 +66,10 @@ jobs:
           files: |
             ./build/compressed-artifacts/*
 
-      - uses: actions/upload-artifact@master
+      - uses: actions/upload-artifact@v3
         with:
-          name: build-artifacts
-          path: ./build/artifacts/
+          name: amd64-artifacts
+          path: ./build/artifacts/linux-amd64
 
   linux_arm_release:
     runs-on: ubuntu-latest
@@ -113,10 +113,10 @@ jobs:
           files: |
             ./build/compressed-artifacts/*
 
-      - uses: actions/upload-artifact@master
+      - uses: actions/upload-artifact@v3
         with:
-          name: build-artifacts
-          path: ./build/artifacts/
+          name: aarch64-artifacts
+          path: ./build/artifacts/linux-aarch64
 
   aditional_release:
     name: ${{ matrix.os }} release
@@ -214,10 +214,15 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - uses: actions/download-artifact@master
+      - uses: actions/download-artifact@v3
         with:
-          name: build-artifacts
-          path: ./build/artifacts/
+          name: aarch64-artifacts
+          path: ./build/artifacts/linux-aarch64
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: amd64-artifacts
+          path: ./build/artifacts/linux-amd64
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
