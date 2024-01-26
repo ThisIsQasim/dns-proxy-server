@@ -186,7 +186,9 @@ jobs:
             ./build/compressed-artifacts/*
 
   container_release:
-    needs: linux_arm_release
+    needs:
+      - primary_release
+      - linux_arm_release
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
