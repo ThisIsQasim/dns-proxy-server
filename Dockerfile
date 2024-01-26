@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM debian:10-slim AS base
 
 FROM base AS artifact
@@ -6,7 +7,7 @@ RUN export ARCH=$(bash -c '[ $(uname -m) == "x86_64" ] && echo "amd64" || echo "
 	mv /build/artifacts/linux-${ARCH} /app
 
 FROM base
-COPY --from=artifact /app/dns-proxy-server /app/dns-proxy-server
+COPY --from=artifact --chmod=755 /app/dns-proxy-server /app/dns-proxy-server
 WORKDIR /app
 LABEL dps.container=true
 ENV DPS_CONTAINER=1
