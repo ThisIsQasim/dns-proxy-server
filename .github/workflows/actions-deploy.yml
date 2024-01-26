@@ -196,6 +196,7 @@ jobs:
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
+      APP_VERSION: ${{ needs.primary_release.outputs.APP_VERSION }}
 
     steps:
       - name: Checkout repository
@@ -219,7 +220,7 @@ jobs:
           flavor: |
             latest=true
           tags: |
-            type=ref,event=tag
+            type=raw,value=${{ env.APP_VERSION }}
 
       - uses: actions/download-artifact@v3
         with:
