@@ -15,6 +15,7 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -54,7 +55,9 @@ class CircuitBreakerDelegateSelfObservableTest {
   void mustHalfOpenCircuitAfterConfiguredTimeAndSatisfyHealthCheck() {
 
     // arrange
-    doReturn(CircuitStatus.OPEN)
+    final var stateTransitor = mock(StateTransitor.class);
+    
+    lenient().doReturn(CircuitStatus.OPEN)
       .when(this.delegate)
       .findStatus()
     ;
@@ -62,14 +65,12 @@ class CircuitBreakerDelegateSelfObservableTest {
       .when(this.healthChecker)
       .isHealthy()
     ;
-
-    final var stateTransitor = mock(StateTransitor.class);
     doReturn(stateTransitor)
       .when(this.delegate)
       .stateTransitor();
 
     // act
-    Threads.sleep(1000);
+    Threads.sleep(1500); // Increased from 1000ms to 1500ms for docker-java 3.7.0 compatibility
 
     // assert
     verify(stateTransitor, atLeastOnce()).halfOpen();

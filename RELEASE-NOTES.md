@@ -1,3 +1,8 @@
+## Unreleased
+* Dependency Update: Upgraded Docker Java client library from 3.3.4 to 3.7.0 for latest features, bug fixes, and security updates.
+  - Updated `docker-java-core` and `docker-java-transport-httpclient5` to version 3.7.0.
+  - Fixed test compatibility issue in `CircuitBreakerDelegateSelfObservableTest` due to stricter Mockito stubbing validation in transitive dependencies.
+
 ## 3.32.7
 * Bugfix: Fixing domain env variable setting. #628
 
