@@ -55,8 +55,6 @@ class CircuitBreakerDelegateSelfObservableTest {
   void mustHalfOpenCircuitAfterConfiguredTimeAndSatisfyHealthCheck() {
 
     // arrange
-    final var stateTransitor = mock(StateTransitor.class);
-    
     lenient().doReturn(CircuitStatus.OPEN)
       .when(this.delegate)
       .findStatus()
@@ -65,6 +63,8 @@ class CircuitBreakerDelegateSelfObservableTest {
       .when(this.healthChecker)
       .isHealthy()
     ;
+    
+    final var stateTransitor = mock(StateTransitor.class);
     doReturn(stateTransitor)
       .when(this.delegate)
       .stateTransitor();
