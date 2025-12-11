@@ -70,7 +70,7 @@ class CircuitBreakerDelegateSelfObservableTest {
       .stateTransitor();
 
     // act
-    Threads.sleep(2000); // Increased from 1000ms to 2000ms for docker-java 3.7.0 compatibility
+    Threads.sleep(2000);
 
     // assert
     verify(stateTransitor, atLeastOnce()).halfOpen();
