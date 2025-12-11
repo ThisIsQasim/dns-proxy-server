@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - test
 
 permissions:
   contents: write
@@ -69,46 +70,11 @@ jobs:
           files: |
             ./build/compressed-artifacts/*
 
-  linux_amd64_static_release:
-    runs-on: ubuntu-22.04
-    needs: primary_release
-    env:
-      APP_VERSION: ${{ needs.primary_release.outputs.APP_VERSION }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Check app version
-        run: echo "$APP_VERSION"
-
-      - name: Install Deps
-        run: sudo apt-get install rename docker-compose -y
-
-      - uses: actions/download-artifact@v4
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
         with:
-          name: native-image-source
-          path: ./build/artifacts/native-image-source/
-
-      - name: Linux Amd64 static Release
-        run: |
-          echo "app version=$APP_VERSION" &&\
-          tree -h ./build/ &&\
-          docker-compose -f docker-compose-deploy.yml run deploy bash -c '
-            /bin/builder.bash deploy-amd64-static &&\
-            echo "> Copying files to the host" &&\
-            cp -rv /app/build/compressed-artifacts /host/build/ &&\
-            echo "Linux amd64 static is done!"
-          ' &&\
-          tree -h ./build/
-      # Release details will be provided by primary-release
-      - name: Github release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ env.APP_VERSION }}
-          append_body: true
-          body: ''
-          files: |
-            ./build/compressed-artifacts/*
+          name: amd64-artifacts
+          path: ./build/artifacts/linux-amd64/
 
   linux_arm_release:
     runs-on: ubuntu-22.04
@@ -144,6 +110,7 @@ jobs:
           docker-compose -f docker-compose-deploy.yml run deploy bash -c '
             /bin/builder.bash deploy-arm &&\
             echo "> Copying files to the host" &&\
+            cp -rv /app/build/artifacts /host/build/ &&\
             cp -rv /app/build/compressed-artifacts /host/build/ &&\
             echo "Linux arm64 is done!"
           ' &&\
@@ -158,6 +125,12 @@ jobs:
           body: ''
           files: |
             ./build/compressed-artifacts/*
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: aarch64-artifacts
+          path: ./build/artifacts/linux-aarch64/
 
   aditional_release:
     name: ${{ matrix.os }} release
@@ -220,3 +193,64 @@ jobs:
           body: ''
           files: |
             ./build/compressed-artifacts/*
+
+  container_release:
+    needs:
+      - primary_release
+      - linux_arm_release
+    runs-on: ubuntu-latest
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+      APP_VERSION: ${{ needs.primary_release.outputs.APP_VERSION }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=true
+          tags: |
+            type=raw,value=${{ env.APP_VERSION }}
+
+      - name: Download amd64 artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: amd64-artifacts
+          path: ./build/artifacts/linux-amd64
+
+      - name: Download aarch64 artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: aarch64-artifacts
+          path: ./build/artifacts/linux-aarch64
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
