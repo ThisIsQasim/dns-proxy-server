@@ -24,7 +24,7 @@ public class DockerConfig {
     final var config = DefaultDockerClientConfig.createDefaultConfigBuilder()
       .withDockerHost(Objects.mapOrNull(dockerHost, URI::toString))
       .withDockerTlsVerify(false)
-      .withApiVersion(RemoteApiVersion.VERSION_1_24)
+      .withApiVersion(RemoteApiVersion.VERSION_1_44) // Updated from 1.24 to 1.44 (Docker Engine 24.x+)
 //      .withDockerCertPath("/home/user/.docker")
 //      .withRegistryUsername(registryUser)
 //      .withRegistryPassword(registryPass)
