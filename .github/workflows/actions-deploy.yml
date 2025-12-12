@@ -71,7 +71,7 @@ jobs:
             ./build/compressed-artifacts/*
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: amd64-artifacts
           path: ./build/artifacts/linux-amd64/
@@ -168,7 +168,7 @@ jobs:
             ./build/compressed-artifacts/*
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: aarch64-artifacts
           path: ./build/artifacts/linux-aarch64/
@@ -275,13 +275,13 @@ jobs:
             type=raw,value=${{ env.APP_VERSION }}
 
       - name: Download amd64 artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: amd64-artifacts
           path: ./build/artifacts/linux-amd64
 
       - name: Download aarch64 artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: aarch64-artifacts
           path: ./build/artifacts/linux-aarch64
